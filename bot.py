@@ -1,6 +1,7 @@
 import os
 import asyncio
 import discord
+import pygame
 
 from discord.ext import commands
 from modules.helpers import *
@@ -58,6 +59,59 @@ async def work(ctx):
     user_profiles[user_id]["cash"] += WORK_REWARD
     work_cooldowns[user_id] = asyncio.get_event_loop().time() + WORK_COOLDOWN
     await ctx.send(f"You worked and earned ${WORK_REWARD}! Your new balance is ${user_profiles[user_id]['cash']}.")
+
+@bot.command(name="slots-game")
+async def slots_game(ctx):
+    """Run the slots game."""
+
+    # Initialize Pygame
+    pygame.init()
+
+    # Screen dimensions
+    SCREEN_WIDTH = 800
+    SCREEN_HEIGHT = 600
+    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+    pygame.display.set_caption("Slots Betting Game")
+
+    # Colors
+    WHITE = (255, 255, 255)
+    BLACK = (0, 0, 0)
+
+    # Fonts
+    font = pygame.font.Font(None, 36)
+
+    # Slot symbols and payouts
+    SYMBOLS = ["Cherry", "Bell", "Lemon", "Star"]
+    try:
+        with open("payout.json", "r") as f:
+            PAYOUTS = json.load(f)  # Load payout data from a JSON file
+    except FileNotFoundError:
+        print("Error: 'payout.json' file not found.")
+        PAYOUTS = {}
+
+    # Function to display text
+    def display_text(text, x, y):
+        rendered_text = font.render(text, True, BLACK)
+        screen.blit(rendered_text, (x, y))
+
+    # Main game loop
+    def main_game():
+        running = True
+        while running:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+
+            # Background
+            screen.fill(WHITE)
+            display_text("Try your luck in the slots!", 250, 50)
+
+            pygame.display.flip()
+
+        pygame.quit()
+
+    # Run the game
+    main_game()
 
 # Run the bot
 if __name__ == "__main__":
